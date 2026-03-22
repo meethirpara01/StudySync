@@ -285,7 +285,7 @@ const GroupPage = () => {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.3 }}
-                  className="absolute lg:static inset-0 top-12 lg:inset-auto lg:top-auto w-full lg:h-auto flex-1 lg:flex-none flex flex-col min-h-0"
+                  className="absolute lg:static inset-0 top-12 lg:inset-auto lg:top-auto w-full lg:h-auto flex-1 flex flex-col min-h-0"
                 >
                   <ChatWindow groupId={id} />
                 </motion.div>
@@ -297,7 +297,7 @@ const GroupPage = () => {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.3 }}
-                  className="absolute lg:static inset-0 top-12 lg:inset-auto lg:top-auto w-full lg:h-auto flex-1 lg:flex-none flex flex-col p-8 overflow-auto min-h-0"
+                  className="absolute lg:static inset-0 top-12 lg:inset-auto lg:top-auto w-full lg:h-auto flex-1 flex flex-col overflow-hidden min-h-0"
                 >
                   <NotesEditor groupId={id} />
                 </motion.div>
@@ -309,7 +309,7 @@ const GroupPage = () => {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.3 }}
-                  className="absolute lg:static inset-0 top-12 lg:inset-auto lg:top-auto w-full lg:h-auto flex-1 lg:flex-none flex flex-col overflow-auto min-h-0"
+                  className="absolute lg:static inset-0 top-12 lg:inset-auto lg:top-auto w-full lg:h-auto flex-1 flex flex-col overflow-auto min-h-0"
                 >
                   <AIAssistantPanel groupId={id} />
                 </motion.div>

@@ -79,25 +79,25 @@ const AIAssistantPanel = ({ groupId }) => {
                     <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-black shadow-sm flex-shrink-0 mt-1">
                       <Sparkles className="w-6 h-6" />
                     </div>
-                    <div className="bg-gray-50 p-6 rounded-[2rem] rounded-tl-none border border-gray-100 shadow-sm/50 w-full">
+                    <div className={`p-6 rounded-[2rem] rounded-tl-none border shadow-sm/50 w-full ${isDark ? 'bg-white border-gray-200' : 'bg-gray-50 border-gray-100'}`}>
                       <ReactMarkdown 
                         remarkPlugins={[remarkGfm]}
                         components={{
-                          h1: ({node, ...props}) => <h1 className={`text-xl font-black ${isDark ? 'text-white' : 'text-gray-900'} mb-3 mt-4 first:mt-0`} {...props} />,
-                          h2: ({node, ...props}) => <h2 className={`text-lg font-black ${isDark ? 'text-white' : 'text-gray-900'} mb-2 mt-3`} {...props} />,
-                          h3: ({node, ...props}) => <h3 className={`text-base font-bold ${isDark ? 'text-gray-200' : 'text-gray-800'} mb-2 mt-2`} {...props} />,
-                          p: ({node, ...props}) => <p className={`${isDark ? 'text-gray-300' : 'text-gray-800'} mb-3 leading-relaxed`} {...props} />,
-                          ul: ({node, ...props}) => <ul className={`list-disc list-inside space-y-2 mb-3 ${isDark ? 'text-gray-300' : 'text-gray-800'}`} {...props} />,
-                          ol: ({node, ...props}) => <ol className={`list-decimal list-inside space-y-2 mb-3 ${isDark ? 'text-gray-300' : 'text-gray-800'}`} {...props} />,
-                          li: ({node, ...props}) => <li className={isDark ? 'text-gray-300' : 'text-gray-800'} {...props} />,
+                          h1: ({node, ...props}) => <h1 className={`text-xl font-black ${isDark ? 'text-black' : 'text-gray-900'} mb-3 mt-4 first:mt-0`} {...props} />,
+                          h2: ({node, ...props}) => <h2 className={`text-lg font-black ${isDark ? 'text-black' : 'text-gray-900'} mb-2 mt-3`} {...props} />,
+                          h3: ({node, ...props}) => <h3 className={`text-base font-bold ${isDark ? 'text-gray-900' : 'text-gray-800'} mb-2 mt-2`} {...props} />,
+                          p: ({node, ...props}) => <p className={`${isDark ? 'text-black' : 'text-gray-800'} mb-3 leading-relaxed`} {...props} />,
+                          ul: ({node, ...props}) => <ul className={`list-disc list-inside space-y-2 mb-3 ${isDark ? 'text-black' : 'text-gray-800'}`} {...props} />,
+                          ol: ({node, ...props}) => <ol className={`list-decimal list-inside space-y-2 mb-3 ${isDark ? 'text-black' : 'text-gray-800'}`} {...props} />,
+                          li: ({node, ...props}) => <li className={isDark ? 'text-black' : 'text-gray-800'} {...props} />,
                           code: ({node, inline, ...props}) => inline 
-                            ? <code className={`${isDark ? 'bg-gray-900 text-amber-400' : 'bg-white text-amber-600'} px-2 py-1 rounded font-bold text-sm`} {...props} />
-                            : <code className={`block ${isDark ? 'bg-gray-900 border-gray-700 text-gray-300' : 'bg-white border-gray-200 text-gray-800'} p-3 rounded border overflow-x-auto text-sm font-mono my-3`} {...props} />,
-                          pre: ({node, ...props}) => <pre className={`${isDark ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} p-3 rounded border overflow-x-auto my-3`} {...props} />,
-                          blockquote: ({node, ...props}) => <blockquote className={`border-l-4 border-amber-500 pl-4 italic ${isDark ? 'text-gray-400' : 'text-gray-700'} my-3`} {...props} />,
-                          table: ({node, ...props}) => <table className={`w-full border-collapse border ${isDark ? 'border-gray-700' : 'border-gray-200'} my-3 text-sm`} {...props} />,
-                          th: ({node, ...props}) => <th className={`border p-2 font-bold text-left ${isDark ? 'border-gray-700 bg-gray-800 text-white' : 'border-gray-200 bg-gray-100 text-gray-900'}`} {...props} />,
-                          td: ({node, ...props}) => <td className={`border p-2 ${isDark ? 'border-gray-700 text-gray-300' : 'border-gray-200 text-gray-800'}`} {...props} />,
+                            ? <code className={`${isDark ? 'bg-gray-100 text-blue-600' : 'bg-white text-amber-600'} px-2 py-1 rounded font-bold text-sm`} {...props} />
+                            : <code className={`block ${isDark ? 'bg-gray-100 border-gray-300 text-black' : 'bg-white border-gray-200 text-gray-800'} p-3 rounded border overflow-x-auto text-sm font-mono my-3`} {...props} />,
+                          pre: ({node, ...props}) => <pre className={`${isDark ? 'bg-gray-100 border-gray-300' : 'bg-white border-gray-200'} p-3 rounded border overflow-x-auto my-3`} {...props} />,
+                          blockquote: ({node, ...props}) => <blockquote className={`border-l-4 border-amber-500 pl-4 italic ${isDark ? 'text-gray-700' : 'text-gray-700'} my-3`} {...props} />,
+                          table: ({node, ...props}) => <table className={`w-full border-collapse border ${isDark ? 'border-gray-300' : 'border-gray-200'} my-3 text-sm`} {...props} />,
+                          th: ({node, ...props}) => <th className={`border p-2 font-bold text-left ${isDark ? 'border-gray-300 bg-gray-200 text-black' : 'border-gray-200 bg-gray-100 text-gray-900'}`} {...props} />,
+                          td: ({node, ...props}) => <td className={`border p-2 ${isDark ? 'border-gray-300 text-black' : 'border-gray-200 text-gray-800'}`} {...props} />,
                         }}
                       >
                         {res.content}

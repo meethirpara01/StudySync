@@ -250,7 +250,19 @@ const HomePage = () => {
   useEffect(() => {
     // Trigger style recalculation without remounting
     document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
-  }, [isDark]);
+    
+    // Force wordmark to recalculate background-clip with new theme gradient
+    if (wordmarkIn) {
+      const giantWord = document.getElementById('giant-word');
+      if (giantWord) {
+        // Force reflow to recalculate WebkitBackgroundClip and WebkitTextFillColor
+        giantWord.style.display = 'none';
+        // eslint-disable-next-line no-unused-expressions
+        giantWord.offsetHeight; // Trigger reflow
+        giantWord.style.display = '';
+      }
+    }
+  }, [isDark, wordmarkIn]);
 
 
   const theme = isDark ? 'dark' : 'light';
@@ -659,7 +671,7 @@ const HomePage = () => {
       >
         <div
           className="flex gap-0 hover:pause"
-          style={{ animation: window.innerWidth < 768 ? 'tick 22s linear infinite' : 'tick 18s linear infinite' }}
+          style={{ animation: window.innerWidth < 768 ? 'tick 14s linear infinite' : 'tick 18s linear infinite' }}
           onMouseEnter={(e) => (e.currentTarget.style.animationPlayState = 'paused')}
           onMouseLeave={(e) => (e.currentTarget.style.animationPlayState = 'running')}
         >
@@ -1080,6 +1092,7 @@ const FooterSection = ({ isDark, wordmarkIn }) => (
 
     {/* Giant Wordmark */}
     <div
+      key={`wordmark-${isDark}`}
       id="giant-word"
       className={`relative text-center font-black leading-none tracking-tight py-24 transition-all duration-1000 ${wordmarkIn ? 'opacity-100' : 'opacity-0'}`}
       style={{
