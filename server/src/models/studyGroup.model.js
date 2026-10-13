@@ -26,6 +26,12 @@ const studyGroupSchema = new mongoose.Schema({
       ref: 'User',
     }
   ],
+  joinRequests: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    }
+  ],
   notes: {
     type: String,
     default: '',

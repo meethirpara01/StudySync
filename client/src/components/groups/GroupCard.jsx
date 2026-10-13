@@ -5,7 +5,7 @@ import { useTheme } from '../../context/ThemeContext';
 
 const GREEN = '#388250';
 
-const GroupCard = ({ group, showJoinButton, onJoin }) => {
+const GroupCard = ({ group, showJoinButton, onJoin, joinButtonLabel = 'Join', isJoinDisabled = false }) => {
   const { isDark } = useTheme();
 
   return (
@@ -95,19 +95,20 @@ const GroupCard = ({ group, showJoinButton, onJoin }) => {
         </div>
         {showJoinButton ? (
           <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={{ scale: isJoinDisabled ? 1 : 1.02 }}
+            whileTap={{ scale: isJoinDisabled ? 1 : 0.98 }}
             onClick={(e) => {
               e.preventDefault();
-              onJoin();
+              if (!isJoinDisabled) onJoin();
             }}
-            className="px-4 py-2 rounded-lg font-bold text-white transition-all flex items-center gap-2 text-sm"
+            disabled={isJoinDisabled}
+            className="px-4 py-2 rounded-lg font-bold text-white transition-all flex items-center gap-2 text-sm disabled:opacity-70 disabled:cursor-not-allowed"
             style={{
               background: GREEN,
               boxShadow: `0 0 12px ${GREEN}40`
             }}
           >
-            <span>Join</span>
+            <span>{joinButtonLabel}</span>
             <ArrowRight className="w-4 h-4" />
           </motion.button>
         ) : (

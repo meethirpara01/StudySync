@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { getUserGroups, getAllGroups, joinGroup, reset } from '../features/groups/groupSlice';
+import { getUserGroups, getAllGroups, joinGroup, requestToJoinGroup, reset } from '../features/groups/groupSlice';
 import GroupCard from '../components/groups/GroupCard';
 import CreateGroupModal from '../components/groups/CreateGroupModal';
 import { Plus, Search, Loader2, Users } from 'lucide-react';
@@ -40,6 +40,15 @@ const DashboardPage = () => {
   const onJoinGroup = async (groupId) => {
     try {
       await dispatch(joinGroup(groupId)).unwrap();
+      setView('my-groups');
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const requestJoinGroup = async (groupId) => {
+    try {
+      await dispatch(requestToJoinGroup(groupId)).unwrap();
       setView('my-groups');
     } catch (error) {
       console.error(error);
@@ -173,9 +182,11 @@ const DashboardPage = () => {
                     transition={{ delay: i * 0.05 }}
                   >
                     <GroupCard 
-                      group={group} 
+                      group={group}
                       showJoinButton={view === 'discover' && !group.members.some(m => m === user?._id || m?._id === user?._id)}
-                      onJoin={() => onJoinGroup(group._id)}
+                      joinButtonLabel={group.joinRequests?.some((request) => request?._id === user?._id || request === user?._id) ? 'Requested' : 'Request to Join'}
+                      isJoinDisabled={group.joinRequests?.some((request) => request?._id === user?._id || request === user?._id)}
+                      onJoin={() => requestJoinGroup(group._id)}
                     />
                   </motion.div>
                 ))}
