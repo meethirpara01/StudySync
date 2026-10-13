@@ -120,12 +120,54 @@ class StudyGroupService {
     return updatedGroup;
   }
 
-  async leaveGroup(groupId, userId) {
+  async leaveGroup(groupId, userId, options = {}) {
+    const { action = 'leave', newAdminId } = options;
     const group = await studyGroupRepository.findById(groupId);
     if (!group) {
       throw new Error('Study group not found');
     }
-    
+
+    const isMember = group.members.some((member) => member._id.toString() === userId.toString());
+    if (!isMember) {
+      const error = new Error('You are not a member of this group');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const isAdmin = group.createdBy._id.toString() === userId.toString();
+    if (action === 'delete') {
+      if (!isAdmin) {
+        const error = new Error('Only the group admin can delete the group');
+        error.statusCode = 403;
+        throw error;
+      }
+      await studyGroupRepository.delete(groupId);
+      logger.info(`Study group deleted by admin ${userId}: ${groupId}`);
+      return null;
+    }
+
+    if (isAdmin) {
+      if (action !== 'transfer' || !newAdminId || newAdminId.toString() === userId.toString()) {
+        const error = new Error('Choose another group member as the new admin before leaving');
+        error.statusCode = 400;
+        throw error;
+      }
+
+      const newAdminIsMember = group.members.some((member) => member._id.toString() === newAdminId.toString());
+      if (!newAdminIsMember) {
+        const error = new Error('The new admin must already be a member of this group');
+        error.statusCode = 400;
+        throw error;
+      }
+
+      const transferredGroup = await studyGroupRepository.transferAdminAndRemoveMember(groupId, userId, newAdminId);
+      if (!transferredGroup) {
+        throw new Error('Unable to transfer admin role');
+      }
+      logger.info(`Admin ${userId} transferred group ${groupId} to ${newAdminId} and left`);
+      return transferredGroup;
+    }
+
     const updatedGroup = await studyGroupRepository.removeMember(groupId, userId);
     logger.info(`User ${userId} left study group: ${groupId}`);
     return updatedGroup;

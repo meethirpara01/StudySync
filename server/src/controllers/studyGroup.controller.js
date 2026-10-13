@@ -79,7 +79,7 @@ const joinGroup = asyncHandler(async (req, res) => {
 // @route   POST /api/groups/:id/leave
 // @access  Private
 const leaveGroup = asyncHandler(async (req, res) => {
-  const group = await studyGroupService.leaveGroup(req.params.id, req.user._id);
+  const group = await studyGroupService.leaveGroup(req.params.id, req.user._id, req.body);
   res.json(group);
 });
 

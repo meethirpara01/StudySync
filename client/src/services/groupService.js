@@ -55,6 +55,11 @@ const joinGroup = async (groupId) => {
   return response.data;
 };
 
+const leaveGroup = async (groupId, options = {}) => {
+  const response = await axios.post(`${API_URL}/${groupId}/leave`, options);
+  return response.data;
+};
+
 const groupService = {
   createGroup,
   getAllGroups,
@@ -65,6 +70,7 @@ const groupService = {
   rejectJoinRequest,
   acceptInvite,
   joinGroup,
+  leaveGroup,
 };
 
 export default groupService;

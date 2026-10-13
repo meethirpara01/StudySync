@@ -169,6 +169,21 @@ export const joinGroup = createAsyncThunk(
   }
 );
 
+export const leaveGroup = createAsyncThunk(
+  'groups/leave',
+  async ({ groupId, options }, thunkAPI) => {
+    try {
+      return await groupService.leaveGroup(groupId, options);
+    } catch (error) {
+      const message =
+        (error.response && error.response.data && error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 export const groupSlice = createSlice({
   name: 'groups',
   initialState,
@@ -250,6 +265,9 @@ export const groupSlice = createSlice({
         state.currentGroup = action.payload;
       })
       .addCase(joinGroup.fulfilled, (state, action) => {
+        state.currentGroup = action.payload;
+      })
+      .addCase(leaveGroup.fulfilled, (state, action) => {
         state.currentGroup = action.payload;
       });
   },

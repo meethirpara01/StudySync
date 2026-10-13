@@ -59,7 +59,22 @@ class StudyGroupRepository {
   async removeMember(groupId, userId) {
     return await StudyGroup.findByIdAndUpdate(
       groupId,
-      { $pull: { members: userId } },
+      { $pull: { members: userId, joinRequests: userId } },
+      { new: true }
+    ).populate('createdBy', 'name email').populate('members', 'name email').populate('joinRequests', 'name email');
+  }
+
+  async transferAdminAndRemoveMember(groupId, currentAdminId, newAdminId) {
+    return await StudyGroup.findOneAndUpdate(
+      {
+        _id: groupId,
+        createdBy: currentAdminId,
+        members: { $all: [currentAdminId, newAdminId] },
+      },
+      {
+        $set: { createdBy: newAdminId },
+        $pull: { members: currentAdminId, joinRequests: currentAdminId },
+      },
       { new: true }
     ).populate('createdBy', 'name email').populate('members', 'name email').populate('joinRequests', 'name email');
   }
