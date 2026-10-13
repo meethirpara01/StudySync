@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { getGroupById, reset, acceptInvite, approveJoinRequest, rejectJoinRequest } from '../features/groups/groupSlice';
+import { getGroupById, reset, acceptInvite, approveJoinRequest, rejectJoinRequest, leaveGroup } from '../features/groups/groupSlice';
 import { getGroupMessages, addMessage, updateMessage } from '../features/chat/chatSlice';
 import ChatWindow from '../components/chat/ChatWindow';
 import AIAssistantPanel from '../components/ai/AIAssistantPanel';
 import NotesEditor from '../components/notes/NotesEditor';
 import socket from '../sockets/socketClient';
-import { Users, MessageSquare, Sparkles, FileText, Loader2, ArrowLeft, ChevronRight, Settings, UserPlus, Check } from 'lucide-react';
+import { Users, MessageSquare, Sparkles, FileText, Loader2, ArrowLeft, ChevronRight, UserPlus, Check, LogOut, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
 
@@ -30,6 +30,10 @@ const GroupPage = () => {
   const [copied, setCopied] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showRequestsModal, setShowRequestsModal] = useState(false);
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [selectedNewAdmin, setSelectedNewAdmin] = useState('');
+  const [leaveActionError, setLeaveActionError] = useState('');
+  const [isLeaving, setIsLeaving] = useState(false);
   const [processingRequestId, setProcessingRequestId] = useState(null);
   const [requestActionError, setRequestActionError] = useState('');
 
@@ -44,6 +48,7 @@ const GroupPage = () => {
 
   const isMember = currentGroup?.members?.some((member) => member?._id === user?._id || member === user?._id);
   const isAdmin = currentGroup?.createdBy?._id === user?._id || currentGroup?.createdBy === user?._id;
+  const adminCandidates = currentGroup?.members?.filter((member) => (member?._id || member) !== user?._id) || [];
 
   useEffect(() => {
     dispatch(getGroupById(id));
@@ -118,6 +123,25 @@ const GroupPage = () => {
     }
   };
 
+  const handleLeaveGroup = async (action = 'leave') => {
+    try {
+      setIsLeaving(true);
+      setLeaveActionError('');
+      const options = action === 'delete'
+        ? { action: 'delete' }
+        : isAdmin
+          ? { action: 'transfer', newAdminId: selectedNewAdmin }
+          : { action: 'leave' };
+      await dispatch(leaveGroup({ groupId: id, options })).unwrap();
+      setShowLeaveModal(false);
+      navigate('/dashboard');
+    } catch (error) {
+      setLeaveActionError(error || 'Unable to leave this group.');
+    } finally {
+      setIsLeaving(false);
+    }
+  };
+
   if (groupLoading) {
     return (
       <div className="w-full min-h-screen flex flex-col justify-center items-center gap-6 py-12">
@@ -176,6 +200,62 @@ const GroupPage = () => {
 
   return (
     <div className="w-full h-screen flex flex-col p-6 md:p-8 lg:p-10 relative overflow-hidden">
+      {showLeaveModal && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, y: 16, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            className="w-full max-w-lg rounded-2xl border shadow-2xl p-6"
+            style={{ background: isDark ? '#151515' : '#FFFFFF', borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}
+          >
+            <div className="flex items-start justify-between gap-4 mb-6">
+              <div>
+                <p className="text-xs uppercase tracking-widest font-bold" style={{ color: GREEN }}>Group settings</p>
+                <h2 className="text-2xl font-black mt-1">Leave {currentGroup.name}?</h2>
+              </div>
+              <button onClick={() => setShowLeaveModal(false)} className="w-9 h-9 rounded-lg border text-lg font-bold" aria-label="Close leave group dialog">×</button>
+            </div>
+
+            {leaveActionError && <div className="mb-4 rounded-xl border px-4 py-3 text-sm font-semibold" style={{ color: '#DC2626', borderColor: '#DC262655', background: '#DC262610' }}>{leaveActionError}</div>}
+
+            {isAdmin ? (
+              <div className="space-y-4">
+                <p className="text-sm" style={{ color: isDark ? 'rgba(242,242,242,0.65)' : 'rgba(12,12,12,0.65)' }}>
+                  You are the admin. Assign another member before leaving, or permanently delete this group.
+                </p>
+                <label className="block text-sm font-bold">
+                  New group admin
+                  <select
+                    value={selectedNewAdmin}
+                    onChange={(event) => setSelectedNewAdmin(event.target.value)}
+                    className="mt-2 w-full rounded-xl border px-4 py-3 bg-transparent"
+                    style={{ borderColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)' }}
+                  >
+                    <option value="">Select a member</option>
+                    {adminCandidates.map((member) => <option key={member._id || member} value={member._id || member}>{member.name || 'Group member'}</option>)}
+                  </select>
+                </label>
+                <div className="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+                  <button onClick={() => handleLeaveGroup('delete')} disabled={isLeaving} className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold border disabled:opacity-50" style={{ color: '#DC2626', borderColor: '#DC262655' }}>
+                    <Trash2 className="w-4 h-4" /> Delete Group
+                  </button>
+                  <button onClick={() => handleLeaveGroup('transfer')} disabled={isLeaving || !selectedNewAdmin} className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-white disabled:opacity-50" style={{ background: GREEN }}>
+                    <LogOut className="w-4 h-4" /> Assign New Admin and Leave
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex justify-end gap-3">
+                <button onClick={() => setShowLeaveModal(false)} className="px-4 py-3 rounded-xl font-bold border">Cancel</button>
+                <button onClick={() => handleLeaveGroup()} disabled={isLeaving} className="inline-flex items-center gap-2 px-4 py-3 rounded-xl font-bold text-white disabled:opacity-50" style={{ background: GREEN }}>
+                  <LogOut className="w-4 h-4" /> Leave Group
+                </button>
+              </div>
+            )}
+          </motion.div>
+        </div>
+      )}
+
       {showRequestsModal && isAdmin && (
         <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <motion.div
@@ -342,7 +422,7 @@ const GroupPage = () => {
             </div>
           </div>
           
-          <div className="hidden lg:flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-end gap-2 lg:gap-4">
             {isAdmin && (
               <motion.button
                 whileHover={{ scale: 1.02 }}
@@ -378,6 +458,22 @@ const GroupPage = () => {
               {copied ? <Check className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
               <span>{copied ? 'Link Copied!' : 'Invite'}</span>
             </motion.button>
+            {isMember && (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => { setLeaveActionError(''); setShowLeaveModal(true); }}
+                className="flex items-center gap-2 px-4 py-3 rounded-xl font-bold transition-all border"
+                style={{
+                  background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
+                  borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+                  color: isDark ? '#F2F2F2' : '#0C0C0C'
+                }}
+              >
+                <LogOut className="w-5 h-5" />
+                <span>Leave Group</span>
+              </motion.button>
+            )}
             
             <div className="flex -space-x-2 px-4 py-2 rounded-xl border" style={{
               background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
