@@ -2,6 +2,17 @@ const aiAssistantService = require('../ai/aiAssistant.service');
 const asyncHandler = require('../utils/asyncHandler');
 const logger = require('../utils/logger');
 
+const sendAIError = (res, error, operation) => {
+  const isQuotaError = /429|quota|rate.?limit/i.test(error.message || '');
+  const statusCode = isQuotaError ? 429 : 500;
+  const message = isQuotaError
+    ? 'Gemini API quota exceeded. Please wait for the quota reset or use a Gemini API key with billing enabled.'
+    : error.message || `Failed to ${operation}`;
+
+  logger.error(`[POST /api/ai] ${operation} error: ${error.message}`);
+  return res.status(statusCode).json({ success: false, message });
+};
+
 /**
  * @desc    Ask AI a question
  * @route   POST /api/ai/ask
@@ -35,11 +46,7 @@ const askAI = asyncHandler(async (req, res) => {
       response: response 
     });
   } catch (error) {
-    logger.error(`[POST /api/ai/ask] Error: ${error.message}`);
-    res.status(500).json({ 
-      success: false, 
-      message: error.message || 'Failed to get AI response' 
-    });
+    sendAIError(res, error, 'get AI response');
   }
 });
 
@@ -76,11 +83,7 @@ const summarizeNotes = asyncHandler(async (req, res) => {
       summary: summary 
     });
   } catch (error) {
-    logger.error(`[POST /api/ai/summarize] Error: ${error.message}`);
-    res.status(500).json({ 
-      success: false, 
-      message: error.message || 'Failed to summarize notes' 
-    });
+    sendAIError(res, error, 'summarize notes');
   }
 });
 
@@ -117,11 +120,7 @@ const generateQuiz = asyncHandler(async (req, res) => {
       quiz: quiz 
     });
   } catch (error) {
-    logger.error(`[POST /api/ai/quiz] Error: ${error.message}`);
-    res.status(500).json({ 
-      success: false, 
-      message: error.message || 'Failed to generate quiz' 
-    });
+    sendAIError(res, error, 'generate quiz');
   }
 });
 

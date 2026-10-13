@@ -1,4 +1,4 @@
-const { getMistralModel } = require('./mistralClient');
+const { getGeminiModel } = require('./geminiClient');
 const { PromptTemplate } = require("@langchain/core/prompts");
 const { StringOutputParser } = require("@langchain/core/output_parsers");
 const logger = require('../utils/logger');
@@ -22,7 +22,7 @@ class AIAssistantService {
 
       logger.info(`Processing question: ${prompt.substring(0, 50)}...`);
 
-      const model = getMistralModel();
+      const model = getGeminiModel();
 
       const template = `You are a helpful study assistant for StudySync, an educational platform.
 Context: {context}
@@ -63,7 +63,7 @@ Provide a helpful, concise, and educational response.`;
 
       logger.info('Processing summarization...');
 
-      const model = getMistralModel();
+      const model = getGeminiModel();
 
       const template = `Summarize the following study notes in a structured way with key points.
 Use bullet points and clear headers.
@@ -105,7 +105,7 @@ Provide a concise summary capturing main concepts.`;
 
       logger.info(`Generating quiz for: ${topic}`);
 
-      const model = getMistralModel();
+      const model = getGeminiModel();
 
       const template = `Generate 5 multiple-choice questions for: {topic}
 
@@ -158,7 +158,7 @@ Return ONLY valid JSON array, no markdown formatting, no code blocks.`;
 
       logger.info('Moderating message...');
 
-      const model = getMistralModel({ temperature: 0.1 });
+      const model = getGeminiModel({ temperature: 0.1 });
 
       const template = `Is this message appropriate for a study group chat?
 Message: "{message}"

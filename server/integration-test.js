@@ -1,5 +1,5 @@
 /* 
-  Integration Test for Mistral AI + LangChain
+  Integration Test for Gemini AI + LangChain
   Tests all API endpoints
 */
 
@@ -52,7 +52,7 @@ function makeRequest(method, path, data) {
 }
 
 async function runTests() {
-  console.log('=== Integration Test: Mistral AI + LangChain ===\n');
+  console.log('=== Integration Test: Gemini AI + LangChain ===\n');
 
   try {
     console.log('1️⃣ Testing /api/ai/ask endpoint...');
