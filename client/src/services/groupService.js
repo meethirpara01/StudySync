@@ -38,6 +38,11 @@ const approveJoinRequest = async (groupId, userId) => {
   return response.data;
 };
 
+const rejectJoinRequest = async (groupId, userId) => {
+  const response = await axios.post(`${API_URL}/${groupId}/reject-request`, { userId });
+  return response.data;
+};
+
 // Accept a direct invite to a group
 const acceptInvite = async (groupId) => {
   const response = await axios.post(`${API_URL}/${groupId}/accept-invite`);
@@ -57,6 +62,7 @@ const groupService = {
   getGroupById,
   requestToJoinGroup,
   approveJoinRequest,
+  rejectJoinRequest,
   acceptInvite,
   joinGroup,
 };

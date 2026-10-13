@@ -1369,3 +1369,19 @@
 {"level":"info","message":"User 57oiL81NT0DfGtl9AAAg joined group: 6a94fca23a6814e9cef194ea","service":"studysync-api","timestamp":"2026-10-13 11:14:27"}
 {"level":"info","message":"User 57oiL81NT0DfGtl9AAAg joined group: 6a94fca23a6814e9cef194ea","service":"studysync-api","timestamp":"2026-10-13 11:14:27"}
 {"level":"info","message":"User hSos5zK46wITIW8RAAAZ joined group: 6acdc3bb710978c4b2a81e15","service":"studysync-api","timestamp":"2026-10-13 11:14:27"}
+{"level":"info","message":"Server running in development mode on port 5001","service":"studysync-api","timestamp":"2026-10-13 22:24:56"}
+{"level":"info","message":"User disconnected: Bz-z-jV7F-SPbEEXAAAB","service":"studysync-api","timestamp":"2026-10-13 22:25:22"}
+{"level":"info","message":"User BoBjSvU4C8zFQkBoAAAE joined group: 6ace60377db1a250f3741eb8","service":"studysync-api","timestamp":"2026-10-13 22:25:22"}
+{"level":"info","message":"User BoBjSvU4C8zFQkBoAAAE joined group: 6ace60377db1a250f3741eb8","service":"studysync-api","timestamp":"2026-10-13 22:25:22"}
+{"level":"info","message":"Join request submitted by 6a951f573a6814e9cef196f4 for group: 6ace60377db1a250f3741eb8","service":"studysync-api","timestamp":"2026-10-13 22:25:38"}
+{"level":"info","message":"User disconnected: BoBjSvU4C8zFQkBoAAAE","service":"studysync-api","timestamp":"2026-10-13 22:25:54"}
+{"level":"info","message":"User y8maom5ovYswCIUuAAAH joined group: 6ace60377db1a250f3741eb8","service":"studysync-api","timestamp":"2026-10-13 22:25:54"}
+{"level":"info","message":"User y8maom5ovYswCIUuAAAH joined group: 6ace60377db1a250f3741eb8","service":"studysync-api","timestamp":"2026-10-13 22:25:54"}
+{"level":"info","message":"Join request submitted by 6a951f573a6814e9cef196f4 for group: 6ace60377db1a250f3741eb8","service":"studysync-api","timestamp":"2026-10-13 22:26:09"}
+{"level":"info","message":"User disconnected: y8maom5ovYswCIUuAAAH","service":"studysync-api","timestamp":"2026-10-13 22:26:18"}
+{"level":"info","message":"User CtmMK8MRtWa2-Qh4AAAK joined group: 6ace60377db1a250f3741eb8","service":"studysync-api","timestamp":"2026-10-13 22:26:19"}
+{"level":"info","message":"User CtmMK8MRtWa2-Qh4AAAK joined group: 6ace60377db1a250f3741eb8","service":"studysync-api","timestamp":"2026-10-13 22:26:19"}
+{"level":"info","message":"User 6a951f573a6814e9cef196f4 approved into study group: 6ace60377db1a250f3741eb8 by admin 6a94fbd23a6814e9cef194da","service":"studysync-api","timestamp":"2026-10-13 22:26:20"}
+{"level":"info","message":"User B6RS9aH8Oooqk9nEAAAN joined group: 6ace60377db1a250f3741eb8","service":"studysync-api","timestamp":"2026-10-13 22:26:28"}
+{"level":"info","message":"User B6RS9aH8Oooqk9nEAAAN joined group: 6ace60377db1a250f3741eb8","service":"studysync-api","timestamp":"2026-10-13 22:26:28"}
+{"level":"info","message":"Message sent in group 6ace60377db1a250f3741eb8 by 6a94fbd23a6814e9cef194da","service":"studysync-api","timestamp":"2026-10-13 22:26:43"}

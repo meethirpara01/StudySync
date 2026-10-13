@@ -72,6 +72,22 @@ class StudyGroupService {
     return updatedGroup;
   }
 
+  async rejectJoinRequest(groupId, userId, adminId) {
+    const group = await this.getGroupById(groupId);
+    if (group.createdBy._id.toString() !== adminId.toString()) {
+      const error = new Error('Only the group admin can reject requests');
+      error.statusCode = 403;
+      throw error;
+    }
+
+    const hasRequest = group.joinRequests.some((request) => request._id.toString() === userId.toString());
+    if (!hasRequest) {
+      throw new Error('Join request not found');
+    }
+
+    return await studyGroupRepository.rejectJoinRequest(groupId, userId);
+  }
+
   async acceptInvite(groupId, userId) {
     const group = await studyGroupRepository.findById(groupId);
     if (!group) {

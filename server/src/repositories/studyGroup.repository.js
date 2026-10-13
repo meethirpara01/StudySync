@@ -40,6 +40,14 @@ class StudyGroupRepository {
     ).populate('createdBy', 'name email').populate('members', 'name email').populate('joinRequests', 'name email');
   }
 
+  async rejectJoinRequest(groupId, userId) {
+    return await StudyGroup.findByIdAndUpdate(
+      groupId,
+      { $pull: { joinRequests: userId } },
+      { new: true }
+    ).populate('createdBy', 'name email').populate('members', 'name email').populate('joinRequests', 'name email');
+  }
+
   async addMember(groupId, userId) {
     return await StudyGroup.findByIdAndUpdate(
       groupId,
