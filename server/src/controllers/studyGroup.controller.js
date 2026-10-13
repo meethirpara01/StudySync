@@ -33,6 +33,31 @@ const getGroupById = asyncHandler(async (req, res) => {
   res.json(group);
 });
 
+// @desc    Request to join study group
+// @route   POST /api/groups/:id/request-join
+// @access  Private
+const requestToJoinGroup = asyncHandler(async (req, res) => {
+  const group = await studyGroupService.requestToJoinGroup(req.params.id, req.user._id);
+  res.json(group);
+});
+
+// @desc    Approve a pending join request
+// @route   POST /api/groups/:id/approve-request
+// @access  Private
+const approveJoinRequest = asyncHandler(async (req, res) => {
+  const { userId } = req.body;
+  const group = await studyGroupService.approveJoinRequest(req.params.id, userId, req.user._id);
+  res.json(group);
+});
+
+// @desc    Accept a direct group invite
+// @route   POST /api/groups/:id/accept-invite
+// @access  Private
+const acceptInvite = asyncHandler(async (req, res) => {
+  const group = await studyGroupService.acceptInvite(req.params.id, req.user._id);
+  res.json(group);
+});
+
 // @desc    Join study group
 // @route   POST /api/groups/:id/join
 // @access  Private
@@ -54,6 +79,9 @@ module.exports = {
   getAllGroups,
   getUserGroups,
   getGroupById,
+  requestToJoinGroup,
+  approveJoinRequest,
+  acceptInvite,
   joinGroup,
   leaveGroup,
 };

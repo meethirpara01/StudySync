@@ -82,6 +82,60 @@ export const getGroupById = createAsyncThunk(
   }
 );
 
+// Request to join group
+export const requestToJoinGroup = createAsyncThunk(
+  'groups/requestJoin',
+  async (groupId, thunkAPI) => {
+    try {
+      return await groupService.requestToJoinGroup(groupId);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Approve join request
+export const approveJoinRequest = createAsyncThunk(
+  'groups/approveJoinRequest',
+  async ({ groupId, userId }, thunkAPI) => {
+    try {
+      return await groupService.approveJoinRequest(groupId, userId);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Accept direct invite
+export const acceptInvite = createAsyncThunk(
+  'groups/acceptInvite',
+  async (groupId, thunkAPI) => {
+    try {
+      return await groupService.acceptInvite(groupId);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 // Join group
 export const joinGroup = createAsyncThunk(
   'groups/join',
@@ -167,6 +221,15 @@ export const groupSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
+      })
+      .addCase(requestToJoinGroup.fulfilled, (state, action) => {
+        state.currentGroup = action.payload;
+      })
+      .addCase(approveJoinRequest.fulfilled, (state, action) => {
+        state.currentGroup = action.payload;
+      })
+      .addCase(acceptInvite.fulfilled, (state, action) => {
+        state.currentGroup = action.payload;
       })
       .addCase(joinGroup.fulfilled, (state, action) => {
         state.currentGroup = action.payload;

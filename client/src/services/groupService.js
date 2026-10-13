@@ -26,6 +26,24 @@ const getGroupById = async (groupId) => {
   return response.data;
 };
 
+// Request to join a group
+const requestToJoinGroup = async (groupId) => {
+  const response = await axios.post(`${API_URL}/${groupId}/request-join`);
+  return response.data;
+};
+
+// Approve a pending request to join a group
+const approveJoinRequest = async (groupId, userId) => {
+  const response = await axios.post(`${API_URL}/${groupId}/approve-request`, { userId });
+  return response.data;
+};
+
+// Accept a direct invite to a group
+const acceptInvite = async (groupId) => {
+  const response = await axios.post(`${API_URL}/${groupId}/accept-invite`);
+  return response.data;
+};
+
 // Join group
 const joinGroup = async (groupId) => {
   const response = await axios.post(`${API_URL}/${groupId}/join`);
@@ -37,6 +55,9 @@ const groupService = {
   getAllGroups,
   getUserGroups,
   getGroupById,
+  requestToJoinGroup,
+  approveJoinRequest,
+  acceptInvite,
   joinGroup,
 };
 

@@ -9,15 +9,35 @@ class StudyGroupRepository {
     return await StudyGroup.findById(id)
       .populate('createdBy', 'name email')
       .populate('members', 'name email')
+      .populate('joinRequests', 'name email')
       .populate('noteHistory.updatedBy', 'name');
   }
 
   async findAll() {
-    return await StudyGroup.find().populate('createdBy', 'name email');
+    return await StudyGroup.find().populate('createdBy', 'name email').populate('joinRequests', 'name email');
   }
 
   async findByMember(userId) {
-    return await StudyGroup.find({ members: userId }).populate('createdBy', 'name email');
+    return await StudyGroup.find({ members: userId }).populate('createdBy', 'name email').populate('joinRequests', 'name email');
+  }
+
+  async addJoinRequest(groupId, userId) {
+    return await StudyGroup.findByIdAndUpdate(
+      groupId,
+      { $addToSet: { joinRequests: userId } },
+      { new: true }
+    ).populate('createdBy', 'name email').populate('members', 'name email').populate('joinRequests', 'name email');
+  }
+
+  async approveJoinRequest(groupId, userId) {
+    return await StudyGroup.findByIdAndUpdate(
+      groupId,
+      {
+        $pull: { joinRequests: userId },
+        $addToSet: { members: userId }
+      },
+      { new: true }
+    ).populate('createdBy', 'name email').populate('members', 'name email').populate('joinRequests', 'name email');
   }
 
   async addMember(groupId, userId) {
@@ -25,7 +45,7 @@ class StudyGroupRepository {
       groupId,
       { $addToSet: { members: userId } },
       { new: true }
-    ).populate('members', 'name email');
+    ).populate('createdBy', 'name email').populate('members', 'name email').populate('joinRequests', 'name email');
   }
 
   async removeMember(groupId, userId) {
@@ -33,7 +53,7 @@ class StudyGroupRepository {
       groupId,
       { $pull: { members: userId } },
       { new: true }
-    ).populate('members', 'name email');
+    ).populate('createdBy', 'name email').populate('members', 'name email').populate('joinRequests', 'name email');
   }
 
   async updateNotes(groupId, notes, userId) {
