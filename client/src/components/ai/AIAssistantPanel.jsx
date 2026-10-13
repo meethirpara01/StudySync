@@ -26,7 +26,7 @@ const AIAssistantPanel = ({ groupId }) => {
     e.preventDefault();
     if (!prompt.trim()) return;
 
-    dispatch(askAI({ prompt, context: `Study group ${groupId}` }));
+    dispatch(askAI({ prompt, context: `Study group ${groupId}`, groupId }));
     setPrompt('');
   };
 

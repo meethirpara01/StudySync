@@ -6,7 +6,7 @@ const asyncHandler = require('../utils/asyncHandler');
 // @access  Private
 const getGroupMessages = asyncHandler(async (req, res) => {
   const { limit } = req.query;
-  const messages = await messageService.getGroupMessages(req.params.groupId, parseInt(limit));
+  const messages = await messageService.getGroupMessages(req.params.groupId, parseInt(limit), req.user._id);
   res.json(messages);
 });
 
@@ -20,7 +20,7 @@ const sendMessage = asyncHandler(async (req, res) => {
     sender: req.user._id,
     content,
     type,
-  });
+  }, req.user._id);
   res.status(201).json(message);
 });
 

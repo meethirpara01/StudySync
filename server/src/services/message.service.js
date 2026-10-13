@@ -1,9 +1,11 @@
 const messageRepository = require('../repositories/message.repository');
+const studyGroupService = require('./studyGroup.service');
 const logger = require('../utils/logger');
 
 class MessageService {
-  async sendMessage(messageData) {
+  async sendMessage(messageData, userId) {
     const { group, sender, content, type, fileName, fileSize, fileData } = messageData;
+    await studyGroupService.requireMember(group, userId);
     const message = await messageRepository.create({
       group,
       sender,
@@ -17,7 +19,8 @@ class MessageService {
     return message;
   }
 
-  async getGroupMessages(groupId, limit) {
+  async getGroupMessages(groupId, limit, userId) {
+    await studyGroupService.requireMember(groupId, userId);
     return await messageRepository.findByGroup(groupId, limit);
   }
 }

@@ -100,7 +100,7 @@ const NotesEditor = ({ groupId }) => {
       setSummaryError('');
       setSummary('');
       
-      const result = await aiService.summarizeNotes({ notes: content });
+      const result = await aiService.summarizeNotes({ notes: content, groupId });
       
       if (!result.success) {
         setSummaryError(result.message || 'Failed to summarize notes');

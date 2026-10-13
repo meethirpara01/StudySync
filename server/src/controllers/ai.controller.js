@@ -1,6 +1,13 @@
 const aiAssistantService = require('../ai/aiAssistant.service');
 const asyncHandler = require('../utils/asyncHandler');
 const logger = require('../utils/logger');
+const studyGroupService = require('../services/studyGroup.service');
+
+const authorizeGroupAccess = async (groupId, userId) => {
+  if (groupId) {
+    await studyGroupService.requireMember(groupId, userId);
+  }
+};
 
 /**
  * @desc    Ask AI a question
@@ -8,7 +15,7 @@ const logger = require('../utils/logger');
  * @access  Private
  */
 const askAI = asyncHandler(async (req, res) => {
-  const { prompt, context } = req.body;
+  const { prompt, context, groupId } = req.body;
 
   if (!prompt || typeof prompt !== 'string') {
     return res.status(400).json({ 
@@ -18,6 +25,7 @@ const askAI = asyncHandler(async (req, res) => {
   }
 
   try {
+    await authorizeGroupAccess(groupId, req.user._id);
     logger.info(`[POST /api/ai/ask] Processing question`);
     const response = await aiAssistantService.askQuestion(prompt, context);
     
@@ -49,7 +57,7 @@ const askAI = asyncHandler(async (req, res) => {
  * @access  Private
  */
 const summarizeNotes = asyncHandler(async (req, res) => {
-  const { notes } = req.body;
+  const { notes, groupId } = req.body;
 
   if (!notes || typeof notes !== 'string') {
     return res.status(400).json({ 
@@ -59,6 +67,7 @@ const summarizeNotes = asyncHandler(async (req, res) => {
   }
 
   try {
+    await authorizeGroupAccess(groupId, req.user._id);
     logger.info(`[POST /api/ai/summarize] Processing notes`);
     const summary = await aiAssistantService.summarizeNotes(notes);
     
@@ -90,7 +99,7 @@ const summarizeNotes = asyncHandler(async (req, res) => {
  * @access  Private
  */
 const generateQuiz = asyncHandler(async (req, res) => {
-  const { topic } = req.body;
+  const { topic, groupId } = req.body;
 
   if (!topic || typeof topic !== 'string') {
     return res.status(400).json({ 
@@ -100,6 +109,7 @@ const generateQuiz = asyncHandler(async (req, res) => {
   }
 
   try {
+    await authorizeGroupAccess(groupId, req.user._id);
     logger.info(`[POST /api/ai/quiz] Generating quiz for: ${topic}`);
     const quiz = await aiAssistantService.generateQuiz(topic);
     

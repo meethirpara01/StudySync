@@ -1291,3 +1291,37 @@
 {"level":"info","message":"User disconnected: Si6GzcMq0PGuX7AYAAAO","service":"studysync-api","timestamp":"2026-08-31 10:00:13"}
 {"level":"info","message":"User XAhRtnzeVgcGAhhtAAAR joined group: 6a94fca23a6814e9cef194ea","service":"studysync-api","timestamp":"2026-08-31 10:00:13"}
 {"level":"info","message":"User XAhRtnzeVgcGAhhtAAAR joined group: 6a94fca23a6814e9cef194ea","service":"studysync-api","timestamp":"2026-08-31 10:00:13"}
+{"level":"info","message":"Server running in development mode on port 5001","service":"studysync-api","timestamp":"2026-10-13 12:05:59"}
+{"level":"info","message":"User disconnected: gDxuaBipDmycReA4AAAB","service":"studysync-api","timestamp":"2026-10-13 12:06:08"}
+{"level":"info","message":"User jZjcHHw2HrAltAFaAAAE joined group: 6acdcf7a710978c4b2a820ad","service":"studysync-api","timestamp":"2026-10-13 12:06:08"}
+{"level":"info","message":"User jZjcHHw2HrAltAFaAAAE joined group: 6acdcf7a710978c4b2a820ad","service":"studysync-api","timestamp":"2026-10-13 12:06:08"}
+{"level":"info","message":"User disconnected: jZjcHHw2HrAltAFaAAAE","service":"studysync-api","timestamp":"2026-10-13 12:06:17"}
+{"level":"info","message":"Study Group created: test by 6a951f573a6814e9cef196f4","service":"studysync-api","timestamp":"2026-10-13 12:06:42"}
+{"level":"info","message":"User O3IHzH78dPKW6giyAAAH joined group: 6acdd17a1da806e906453a1d","service":"studysync-api","timestamp":"2026-10-13 12:06:45"}
+{"level":"info","message":"User O3IHzH78dPKW6giyAAAH joined group: 6acdd17a1da806e906453a1d","service":"studysync-api","timestamp":"2026-10-13 12:06:45"}
+{"level":"info","message":"User disconnected: O3IHzH78dPKW6giyAAAH","service":"studysync-api","timestamp":"2026-10-13 12:12:01"}
+{"level":"info","message":"User 4Ot0lu403aEYvnu6AAAK joined group: 6acdd17a1da806e906453a1d","service":"studysync-api","timestamp":"2026-10-13 12:12:01"}
+{"level":"info","message":"User 4Ot0lu403aEYvnu6AAAK joined group: 6acdd17a1da806e906453a1d","service":"studysync-api","timestamp":"2026-10-13 12:12:01"}
+{"level":"info","message":"User disconnected: 4Ot0lu403aEYvnu6AAAK","service":"studysync-api","timestamp":"2026-10-13 21:35:40"}
+{"level":"info","message":"Server running in development mode on port 5001","service":"studysync-api","timestamp":"2026-10-13 21:39:55"}
+{"level":"info","message":"User logged in: Meet@gmail.com","service":"studysync-api","timestamp":"2026-10-13 21:41:12"}
+{"level":"info","message":"User logged in: john@gmail.com","service":"studysync-api","timestamp":"2026-10-13 21:41:33"}
+{"level":"info","message":"Join request submitted by 6a94fbd23a6814e9cef194da for group: 6acdca7b710978c4b2a81f9b","service":"studysync-api","timestamp":"2026-10-13 21:41:40"}
+{"level":"info","message":"User IKt_EBW4xOdHVHHcAAAC joined group: 6acdca7b710978c4b2a81f9b","service":"studysync-api","timestamp":"2026-10-13 21:41:54"}
+{"level":"info","message":"User IKt_EBW4xOdHVHHcAAAC joined group: 6acdca7b710978c4b2a81f9b","service":"studysync-api","timestamp":"2026-10-13 21:41:54"}
+{"level":"info","message":"User disconnected: IKt_EBW4xOdHVHHcAAAC","service":"studysync-api","timestamp":"2026-10-13 21:42:42"}
+{"level":"info","message":"User grL5Bi5VvkKbE2_sAAAE joined group: 6acdca7b710978c4b2a81f9b","service":"studysync-api","timestamp":"2026-10-13 21:42:42"}
+{"level":"info","message":"Join request submitted by 6a94fbd23a6814e9cef194da for group: 6acdd17a1da806e906453a1d","service":"studysync-api","timestamp":"2026-10-13 21:42:54"}
+{"level":"info","message":"User disconnected: grL5Bi5VvkKbE2_sAAAE","service":"studysync-api","timestamp":"2026-10-13 21:42:56"}
+{"level":"info","message":"User t6-pY1pdDZ07NjPcAAAH joined group: 6acdd17a1da806e906453a1d","service":"studysync-api","timestamp":"2026-10-13 21:42:59"}
+{"level":"info","message":"User t6-pY1pdDZ07NjPcAAAH joined group: 6acdd17a1da806e906453a1d","service":"studysync-api","timestamp":"2026-10-13 21:42:59"}
+{"level":"info","message":"User disconnected: t6-pY1pdDZ07NjPcAAAH","service":"studysync-api","timestamp":"2026-10-13 21:43:01"}
+{"level":"info","message":"User NX-NgPcwn9mQf6h-AAAJ joined group: 6acdd17a1da806e906453a1d","service":"studysync-api","timestamp":"2026-10-13 21:43:01"}
+{"level":"info","message":"User ZBM88JXZxxRtXW0WAAAM joined group: 6acdd17a1da806e906453a1d","service":"studysync-api","timestamp":"2026-10-13 21:43:10"}
+{"level":"info","message":"User ZBM88JXZxxRtXW0WAAAM joined group: 6acdd17a1da806e906453a1d","service":"studysync-api","timestamp":"2026-10-13 21:43:10"}
+{"level":"info","message":"Message sent in group 6acdd17a1da806e906453a1d by 6a94fbd23a6814e9cef194da","service":"studysync-api","timestamp":"2026-10-13 21:43:12"}
+{"level":"info","message":"Adding reaction to message 6ace58987db1a250f3741cc1 by user 6a951f573a6814e9cef196f4: ❤️","service":"studysync-api","timestamp":"2026-10-13 21:43:16"}
+{"level":"info","message":"Reaction updated successfully, broadcasting to room: 6acdd17a1da806e906453a1d","service":"studysync-api","timestamp":"2026-10-13 21:43:16"}
+{"level":"info","message":"User disconnected: NX-NgPcwn9mQf6h-AAAJ","service":"studysync-api","timestamp":"2026-10-13 21:43:19"}
+{"level":"info","message":"User jfpqOJdD9R9VXBlrAAAP joined group: 6acdca7b710978c4b2a81f9b","service":"studysync-api","timestamp":"2026-10-13 21:43:22"}
+{"level":"info","message":"User jfpqOJdD9R9VXBlrAAAP joined group: 6acdca7b710978c4b2a81f9b","service":"studysync-api","timestamp":"2026-10-13 21:43:22"}

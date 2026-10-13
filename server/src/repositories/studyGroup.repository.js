@@ -9,11 +9,15 @@ class StudyGroupRepository {
     return await StudyGroup.findById(id)
       .populate('createdBy', 'name email')
       .populate('members', 'name email')
+      .populate('joinRequests.user', 'name email')
       .populate('noteHistory.updatedBy', 'name');
   }
 
   async findAll() {
-    return await StudyGroup.find().populate('createdBy', 'name email');
+    return await StudyGroup.find()
+      .populate('createdBy', 'name email')
+      .populate('members', 'name email')
+      .populate('joinRequests.user', 'name email');
   }
 
   async findByMember(userId) {
@@ -25,7 +29,41 @@ class StudyGroupRepository {
       groupId,
       { $addToSet: { members: userId } },
       { new: true }
-    ).populate('members', 'name email');
+    ).populate('createdBy members joinRequests.user', 'name email');
+  }
+
+  async upsertJoinRequest(groupId, userId) {
+    return await StudyGroup.findOneAndUpdate(
+      { _id: groupId, 'joinRequests.user': userId },
+      {
+        $set: {
+          'joinRequests.$.status': 'pending',
+          'joinRequests.$.requestedAt': new Date(),
+          'joinRequests.$.reviewedAt': null,
+        }
+      },
+      { new: true }
+    ).then(async (group) => {
+      if (group) return group.populate('createdBy members joinRequests.user', 'name email');
+      return StudyGroup.findByIdAndUpdate(
+        groupId,
+        { $push: { joinRequests: { user: userId, status: 'pending' } } },
+        { new: true }
+      ).populate('createdBy members joinRequests.user', 'name email');
+    });
+  }
+
+  async updateJoinRequest(groupId, userId, status) {
+    return await StudyGroup.findOneAndUpdate(
+      { _id: groupId, 'joinRequests.user': userId },
+      {
+        $set: {
+          'joinRequests.$.status': status,
+          'joinRequests.$.reviewedAt': new Date(),
+        }
+      },
+      { new: true }
+    ).populate('createdBy members joinRequests.user', 'name email');
   }
 
   async removeMember(groupId, userId) {
@@ -33,7 +71,7 @@ class StudyGroupRepository {
       groupId,
       { $pull: { members: userId } },
       { new: true }
-    ).populate('members', 'name email');
+    ).populate('createdBy members joinRequests.user', 'name email');
   }
 
   async updateNotes(groupId, notes, userId) {

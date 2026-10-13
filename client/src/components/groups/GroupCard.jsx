@@ -5,7 +5,7 @@ import { useTheme } from '../../context/ThemeContext';
 
 const GREEN = '#388250';
 
-const GroupCard = ({ group, showJoinButton, onJoin }) => {
+const GroupCard = ({ group, showJoinButton, onJoin, joinRequestStatus }) => {
   const { isDark } = useTheme();
 
   return (
@@ -32,7 +32,7 @@ const GroupCard = ({ group, showJoinButton, onJoin }) => {
       <div className="relative space-y-4">
         <div className="flex justify-between items-start gap-4">
           <div
-            className="w-12 h-12 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0"
+            className="w-12 h-12 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform shrink-0"
             style={{
               background: `${GREEN}20`,
               color: GREEN
@@ -97,18 +97,19 @@ const GroupCard = ({ group, showJoinButton, onJoin }) => {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
+            disabled={joinRequestStatus === 'pending'}
             onClick={(e) => {
               e.preventDefault();
-              onJoin();
+              if (joinRequestStatus !== 'pending') onJoin();
             }}
-            className="px-4 py-2 rounded-lg font-bold text-white transition-all flex items-center gap-2 text-sm"
+            className="px-4 py-2 rounded-lg font-bold text-white transition-all flex items-center gap-2 text-sm disabled:opacity-70 disabled:cursor-not-allowed"
             style={{
               background: GREEN,
               boxShadow: `0 0 12px ${GREEN}40`
             }}
           >
-            <span>Join</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>{joinRequestStatus === 'pending' ? 'Pending' : joinRequestStatus === 'rejected' ? 'Request again' : 'Request to Join'}</span>
+            {joinRequestStatus !== 'pending' && <ArrowRight className="w-4 h-4" />}
           </motion.button>
         ) : (
           <Link

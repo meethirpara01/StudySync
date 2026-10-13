@@ -26,9 +26,18 @@ const getGroupById = async (groupId) => {
   return response.data;
 };
 
-// Join group
-const joinGroup = async (groupId) => {
-  const response = await axios.post(`${API_URL}/${groupId}/join`);
+const acceptInvite = async (groupId) => {
+  const response = await axios.post(`${API_URL}/${groupId}/accept-invite`);
+  return response.data;
+};
+
+const requestToJoinGroup = async (groupId) => {
+  const response = await axios.post(`${API_URL}/${groupId}/join-request`);
+  return response.data;
+};
+
+const reviewJoinRequest = async ({ groupId, userId, status }) => {
+  const response = await axios.post(`${API_URL}/${groupId}/join-requests/${userId}/${status}`);
   return response.data;
 };
 
@@ -37,7 +46,9 @@ const groupService = {
   getAllGroups,
   getUserGroups,
   getGroupById,
-  joinGroup,
+  acceptInvite,
+  requestToJoinGroup,
+  reviewJoinRequest,
 };
 
 export default groupService;

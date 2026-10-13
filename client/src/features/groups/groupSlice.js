@@ -82,17 +82,48 @@ export const getGroupById = createAsyncThunk(
   }
 );
 
-// Join group
-export const joinGroup = createAsyncThunk(
-  'groups/join',
+// Accept a direct group invitation
+export const acceptInvite = createAsyncThunk(
+  'groups/acceptInvite',
   async (groupId, thunkAPI) => {
     try {
-      return await groupService.joinGroup(groupId);
+      return await groupService.acceptInvite(groupId);
+    } catch (error) {
+      const message =
+        (error.response && error.response.data && error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Request access to a group
+export const requestToJoinGroup = createAsyncThunk(
+  'groups/requestToJoin',
+  async (groupId, thunkAPI) => {
+    try {
+      return await groupService.requestToJoinGroup(groupId);
     } catch (error) {
       const message =
         (error.response &&
           error.response.data &&
           error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+export const reviewJoinRequest = createAsyncThunk(
+  'groups/reviewJoinRequest',
+  async ({ groupId, userId, status }, thunkAPI) => {
+    try {
+      return await groupService.reviewJoinRequest({ groupId, userId, status });
+    } catch (error) {
+      const message =
+        (error.response && error.response.data && error.response.data.message) ||
         error.message ||
         error.toString();
       return thunkAPI.rejectWithValue(message);
@@ -109,6 +140,7 @@ export const groupSlice = createSlice({
       state.isSuccess = false;
       state.isError = false;
       state.message = '';
+      state.currentGroup = null;
     },
     setCurrentGroup: (state, action) => {
       state.currentGroup = action.payload;
@@ -168,7 +200,14 @@ export const groupSlice = createSlice({
         state.isError = true;
         state.message = action.payload;
       })
-      .addCase(joinGroup.fulfilled, (state, action) => {
+      .addCase(acceptInvite.fulfilled, (state, action) => {
+        state.currentGroup = action.payload;
+      })
+      .addCase(requestToJoinGroup.fulfilled, (state, action) => {
+        const index = state.groups.findIndex((group) => group._id === action.payload._id);
+        if (index !== -1) state.groups[index] = action.payload;
+      })
+      .addCase(reviewJoinRequest.fulfilled, (state, action) => {
         state.currentGroup = action.payload;
       });
   },

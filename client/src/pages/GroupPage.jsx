@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { getGroupById, reset } from '../features/groups/groupSlice';
+import { getGroupById, acceptInvite, reviewJoinRequest, reset } from '../features/groups/groupSlice';
 import { getGroupMessages, addMessage, updateMessage } from '../features/chat/chatSlice';
 import ChatWindow from '../components/chat/ChatWindow';
 import AIAssistantPanel from '../components/ai/AIAssistantPanel';
@@ -28,9 +28,16 @@ const GroupPage = () => {
     }
   });
   const [copied, setCopied] = useState(false);
+  const [isAcceptingInvite, setIsAcceptingInvite] = useState(false);
 
   const { user } = useSelector((state) => state.auth);
   const { currentGroup, isLoading: groupLoading } = useSelector((state) => state.groups);
+
+  const isMember = currentGroup?.members?.some((member) =>
+    member?._id === user?._id || member === user?._id
+  );
+  const isAdmin = currentGroup?.createdBy?._id === user?._id || currentGroup?.createdBy === user?._id;
+  const pendingJoinRequests = currentGroup?.joinRequests?.filter((request) => request.status === 'pending') || [];
 
   const onInvite = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -38,10 +45,28 @@ const GroupPage = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  useEffect(() => {
-    dispatch(getGroupById(id));
-    dispatch(getGroupMessages(id));
+  const handleReviewRequest = async (requestUserId, status) => {
+    try {
+      await dispatch(reviewJoinRequest({ groupId: id, userId: requestUserId, status })).unwrap();
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
+  useEffect(() => {
+    dispatch(reset());
+    dispatch(getGroupById(id));
+
+    return () => {
+      socket.disconnect();
+      dispatch(reset());
+    };
+  }, [id, dispatch]);
+
+  useEffect(() => {
+    if (!currentGroup || !isMember) return undefined;
+
+    dispatch(getGroupMessages(id));
     socket.connect();
     socket.emit('join_group', id);
 
@@ -54,12 +79,12 @@ const GroupPage = () => {
     });
 
     return () => {
+      socket.emit('leave_group', id);
       socket.off('receive_message');
       socket.off('message_updated');
       socket.disconnect();
-      dispatch(reset());
     };
-  }, [id, dispatch]);
+  }, [currentGroup, dispatch, id, isMember]);
 
   // Save active tab to localStorage
   useEffect(() => {
@@ -115,6 +140,144 @@ const GroupPage = () => {
             <ArrowLeft className="w-5 h-5" />
             <span>Back to Dashboard</span>
           </motion.button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  if (!isMember) {
+    const handleAcceptInvite = async () => {
+      try {
+        setIsAcceptingInvite(true);
+        await dispatch(acceptInvite(id)).unwrap();
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsAcceptingInvite(false);
+      }
+    };
+
+    return (
+      <div
+        className="w-full min-h-screen flex items-center justify-center p-5 sm:p-8 relative overflow-hidden"
+        style={{
+          background: isDark
+            ? 'radial-gradient(circle at 15% 15%, rgba(56,130,80,0.18), transparent 34%), #0C0C0C'
+            : 'radial-gradient(circle at 15% 15%, rgba(56,130,80,0.12), transparent 34%), #F5F7F5'
+        }}
+      >
+        <div
+          className="absolute top-8 right-8 w-32 h-32 rounded-full border opacity-30"
+          style={{ borderColor: GREEN }}
+        />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45 }}
+          className="w-full max-w-2xl rounded-4xl border overflow-hidden relative shadow-2xl"
+          style={{
+            background: isDark ? 'rgba(20,20,20,0.92)' : 'rgba(255,255,255,0.94)',
+            borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
+            boxShadow: isDark ? '0 24px 80px rgba(0,0,0,0.35)' : '0 24px 80px rgba(56,130,80,0.12)'
+          }}
+        >
+          <div className="h-2" style={{ background: GREEN }} />
+          <div className="p-6 sm:p-10">
+            <div className="flex items-start justify-between gap-5 mb-10">
+              <div className="flex items-center gap-4">
+                <div
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
+                  style={{ background: `${GREEN}18`, color: GREEN }}
+                >
+                  <UserPlus className="w-7 h-7" />
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] font-bold mb-1" style={{ color: GREEN }}>
+                    Group Invitation
+                  </p>
+                  <p className="text-sm" style={{ color: isDark ? 'rgba(242,242,242,0.5)' : 'rgba(12,12,12,0.5)' }}>
+                    You have been invited to study together
+                  </p>
+                </div>
+              </div>
+              <div
+                className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-full text-xs font-bold border"
+                style={{
+                  color: GREEN,
+                  borderColor: `${GREEN}40`,
+                  background: `${GREEN}10`
+                }}
+              >
+                <span className="w-2 h-2 rounded-full" style={{ background: GREEN }} />
+                Pending response
+              </div>
+            </div>
+
+            <div className="mb-8">
+              <h2 className="text-4xl sm:text-5xl font-black leading-tight mb-3" style={{ fontFamily: "'Clash Display', sans-serif" }}>
+                {currentGroup.name}
+              </h2>
+              <p className="text-lg font-semibold" style={{ color: GREEN }}>
+                {currentGroup.subject}
+              </p>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-3 mb-8">
+              <div
+                className="p-4 rounded-2xl border"
+                style={{
+                  background: isDark ? 'rgba(255,255,255,0.035)' : 'rgba(0,0,0,0.025)',
+                  borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)'
+                }}
+              >
+                <p className="text-xs uppercase tracking-widest font-bold mb-2" style={{ color: isDark ? 'rgba(242,242,242,0.4)' : 'rgba(12,12,12,0.4)' }}>
+                  Hosted by
+                </p>
+                <p className="font-bold truncate">{currentGroup.createdBy?.name || 'StudySync member'}</p>
+              </div>
+              <div
+                className="p-4 rounded-2xl border"
+                style={{
+                  background: isDark ? 'rgba(255,255,255,0.035)' : 'rgba(0,0,0,0.025)',
+                  borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)'
+                }}
+              >
+                <p className="text-xs uppercase tracking-widest font-bold mb-2" style={{ color: isDark ? 'rgba(242,242,242,0.4)' : 'rgba(12,12,12,0.4)' }}>
+                  Members
+                </p>
+                <p className="font-bold">{currentGroup.members?.length || 0} studying together</p>
+              </div>
+            </div>
+
+            <div
+              className="border-l-2 pl-4 mb-10"
+              style={{ borderColor: GREEN, color: isDark ? 'rgba(242,242,242,0.62)' : 'rgba(12,12,12,0.62)' }}
+            >
+              <p className="leading-relaxed">{currentGroup.description}</p>
+            </div>
+
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="w-full sm:w-auto px-5 py-3 rounded-xl font-bold border transition-all"
+              style={{
+                color: isDark ? '#F2F2F2' : '#0C0C0C',
+                borderColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)',
+                background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'
+              }}
+            >
+              Decline
+            </button>
+            <button
+              onClick={handleAcceptInvite}
+              disabled={isAcceptingInvite}
+              className="w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-white transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{ background: GREEN, boxShadow: `0 10px 24px ${GREEN}35` }}
+            >
+              {isAcceptingInvite ? 'Accepting...' : 'Accept Invite'}
+            </button>
+            </div>
+          </div>
         </motion.div>
       </div>
     );
@@ -212,6 +375,63 @@ const GroupPage = () => {
             </div>
           </div>
         </motion.div>
+
+        {isAdmin && pendingJoinRequests.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex-shrink-0 rounded-2xl border p-5"
+            style={{
+              background: isDark ? 'rgba(56,130,80,0.08)' : 'rgba(56,130,80,0.06)',
+              borderColor: `${GREEN}45`
+            }}
+          >
+            <div className="flex items-center justify-between gap-4 mb-4">
+              <div>
+                <p className="text-xs uppercase tracking-widest font-bold" style={{ color: GREEN }}>Admin review</p>
+                <h2 className="text-lg font-black">Join requests</h2>
+              </div>
+              <span className="px-3 py-1 rounded-full text-xs font-bold text-white" style={{ background: GREEN }}>
+                {pendingJoinRequests.length} pending
+              </span>
+            </div>
+            <div className="space-y-2">
+              {pendingJoinRequests.map((request) => (
+                <div
+                  key={request._id || request.user?._id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl border"
+                  style={{
+                    background: isDark ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.72)',
+                    borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)'
+                  }}
+                >
+                  <div className="min-w-0">
+                    <p className="font-bold truncate">{request.user?.name || 'StudySync member'}</p>
+                    <p className="text-xs truncate" style={{ color: isDark ? 'rgba(242,242,242,0.5)' : 'rgba(12,12,12,0.5)' }}>
+                      {request.user?.email || 'Join request'}
+                    </p>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <button
+                      onClick={() => handleReviewRequest(request.user?._id, 'rejected')}
+                      className="px-3 py-2 rounded-lg border text-sm font-bold"
+                      style={{ color: '#B45309', borderColor: '#F59E0B55' }}
+                    >
+                      Reject
+                    </button>
+                    <button
+                      onClick={() => handleReviewRequest(request.user?._id, 'approved')}
+                      className="px-3 py-2 rounded-lg text-sm font-bold text-white"
+                      style={{ background: GREEN }}
+                    >
+                      Approve
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.section>
+        )}
 
         {/* Main Content */}
         <div className="flex-1 flex gap-6 overflow-hidden min-h-0">
