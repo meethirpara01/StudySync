@@ -33,7 +33,7 @@ class StudyGroupRepository {
   }
 
   async upsertJoinRequest(groupId, userId) {
-    return await StudyGroup.findOneAndUpdate(
+    const existing = await StudyGroup.findOneAndUpdate(
       { _id: groupId, 'joinRequests.user': userId },
       {
         $set: {
@@ -43,14 +43,15 @@ class StudyGroupRepository {
         }
       },
       { new: true }
-    ).then(async (group) => {
-      if (group) return group.populate('createdBy members joinRequests.user', 'name email');
-      return StudyGroup.findByIdAndUpdate(
-        groupId,
-        { $push: { joinRequests: { user: userId, status: 'pending' } } },
-        { new: true }
-      ).populate('createdBy members joinRequests.user', 'name email');
-    });
+    );
+
+    if (existing) return existing.populate('createdBy members joinRequests.user', 'name email');
+
+    return await StudyGroup.findByIdAndUpdate(
+      groupId,
+      { $push: { joinRequests: { user: userId, status: 'pending' } } },
+      { new: true }
+    ).populate('createdBy members joinRequests.user', 'name email');
   }
 
   async updateJoinRequest(groupId, userId, status) {
@@ -80,15 +81,12 @@ class StudyGroupRepository {
       update.$push = {
         noteHistory: {
           $each: [{ content: notes, updatedBy: userId, updatedAt: new Date() }],
-          $slice: -10 // Keep only the last 10 versions
+          $slice: -10,
         }
       };
     }
-    return await StudyGroup.findByIdAndUpdate(
-      groupId,
-      update,
-      { new: true }
-    ).populate('noteHistory.updatedBy', 'name');
+    return await StudyGroup.findByIdAndUpdate(groupId, update, { new: true })
+      .populate('noteHistory.updatedBy', 'name');
   }
 
   async delete(groupId) {

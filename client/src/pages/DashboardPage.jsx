@@ -172,7 +172,7 @@ const DashboardPage = () => {
                     transition={{ delay: i * 0.05 }}
                   >
                     <GroupCard 
-                      group={group} 
+                      group={group}
                       showJoinButton={view === 'discover' && !group.members.some(m => m === user?._id || m?._id === user?._id)}
                       joinRequestStatus={group.joinRequests?.find((request) =>
                         (request.user?._id || request.user) === user?._id

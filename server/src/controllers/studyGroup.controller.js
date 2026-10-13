@@ -91,6 +91,5 @@ module.exports = {
   acceptInvite,
   requestToJoinGroup,
   reviewJoinRequest,
-  joinGroup,
   leaveGroup,
 };

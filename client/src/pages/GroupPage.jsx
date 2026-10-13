@@ -52,7 +52,6 @@ const GroupPage = () => {
       console.error(error);
     }
   };
-
   useEffect(() => {
     dispatch(reset());
     dispatch(getGroupById(id));
@@ -86,6 +85,12 @@ const GroupPage = () => {
     };
   }, [currentGroup, dispatch, id, isMember]);
 
+  useEffect(() => {
+    if (currentGroup && user && !isMember && !isAdmin) {
+      setShowInviteModal(true);
+    }
+  }, [currentGroup, user, isMember, isAdmin]);
+
   // Save active tab to localStorage
   useEffect(() => {
     try {
@@ -94,6 +99,23 @@ const GroupPage = () => {
       console.error('Error saving active tab:', error);
     }
   }, [activeTab, id]);
+
+  const handleAcceptInvite = async () => {
+    try {
+      await dispatch(acceptInvite(id)).unwrap();
+      setShowInviteModal(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleApproveRequest = async (requestUserId) => {
+    try {
+      await dispatch(approveJoinRequest({ groupId: id, userId: requestUserId })).unwrap();
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   if (groupLoading) {
     return (
@@ -291,6 +313,64 @@ const GroupPage = () => {
 
   return (
     <div className="w-full h-screen flex flex-col p-6 md:p-8 lg:p-10 relative overflow-hidden">
+      {showInviteModal && !isMember && !isAdmin && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="w-full max-w-xl rounded-3xl border p-8 shadow-2xl"
+            style={{
+              background: isDark ? '#111827' : '#FFFFFF',
+              borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+            }}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] font-bold" style={{ color: GREEN }}>Group Invitation</p>
+                <h2 className="text-3xl font-black mt-2" style={{ fontFamily: "'Clash Display', sans-serif" }}>{currentGroup.name}</h2>
+              </div>
+              <button onClick={() => setShowInviteModal(false)} className="text-lg font-bold" style={{ color: isDark ? '#F2F2F2' : '#0C0C0C' }}>✕</button>
+            </div>
+
+            <div className="space-y-4 text-sm" style={{ color: isDark ? 'rgba(242,242,242,0.7)' : 'rgba(12,12,12,0.7)' }}>
+              <div className="rounded-2xl border p-4" style={{ borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)' }}>
+                <p className="text-xs uppercase tracking-[0.2em] mb-2" style={{ color: GREEN }}>Subject</p>
+                <p className="text-lg font-bold" style={{ color: isDark ? '#F2F2F2' : '#0C0C0C' }}>{currentGroup.subject}</p>
+              </div>
+
+              <div className="rounded-2xl border p-4" style={{ borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)' }}>
+                <p className="text-xs uppercase tracking-[0.2em] mb-2" style={{ color: GREEN }}>Description</p>
+                <p>{currentGroup.description}</p>
+              </div>
+
+              <div className="rounded-2xl border p-4" style={{ borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)' }}>
+                <p className="text-xs uppercase tracking-[0.2em] mb-2" style={{ color: GREEN }}>Group Admin</p>
+                <p className="font-semibold" style={{ color: isDark ? '#F2F2F2' : '#0C0C0C' }}>{currentGroup.createdBy?.name || 'Unknown admin'}</p>
+                <p>{currentGroup.createdBy?.email || 'admin@studysync'}</p>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-8">
+              <button
+                onClick={() => setShowInviteModal(false)}
+                className="px-5 py-3 rounded-xl font-bold border"
+                style={{
+                  background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+                  borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+                  color: isDark ? '#F2F2F2' : '#0C0C0C',
+                }}
+              >
+                Decline
+              </button>
+              <button
+                onClick={handleAcceptInvite}
+                className="px-5 py-3 rounded-xl font-bold text-white"
+                style={{ background: GREEN, boxShadow: `0 0 20px ${GREEN}50` }}
+              >
+                Accept Invite
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Content */}
       <div className="flex flex-col gap-6 flex-1 overflow-hidden">
         {/* Header */}
@@ -471,6 +551,33 @@ const GroupPage = () => {
               borderColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)'
             }}
           >
+            {isAdmin && currentGroup.joinRequests?.length > 0 && (
+              <div className="border-b p-4" style={{ borderColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-bold" style={{ fontFamily: "'Clash Display', sans-serif" }}>Pending join requests</h3>
+                  <span className="px-2 py-1 rounded-full text-xs font-bold" style={{ background: `${GREEN}20`, color: GREEN }}>
+                    {currentGroup.joinRequests.length}
+                  </span>
+                </div>
+                <div className="space-y-3">
+                  {currentGroup.joinRequests.map((request) => (
+                    <div key={request._id} className="flex items-center justify-between rounded-xl border p-3" style={{ borderColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)' }}>
+                      <div>
+                        <p className="font-semibold" style={{ color: isDark ? '#F2F2F2' : '#0C0C0C' }}>{request.name}</p>
+                        <p className="text-sm" style={{ color: isDark ? 'rgba(242,242,242,0.5)' : 'rgba(12,12,12,0.5)' }}>{request.email}</p>
+                      </div>
+                      <button
+                        onClick={() => handleApproveRequest(request._id)}
+                        className="px-3 py-2 rounded-lg font-bold text-white"
+                        style={{ background: GREEN }}
+                      >
+                        Accept
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             {/* Mobile Tab Selector (Hidden on Desktop) */}
             <div className="lg:hidden flex gap-2 p-3 px-4 border-b relative z-50" style={{ borderColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)' }}>
               {tabs.map((tab) => {
