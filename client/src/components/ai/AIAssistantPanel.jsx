@@ -42,7 +42,7 @@ const AIAssistantPanel = ({ groupId }) => {
             <h3 className={`text-base sm:text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'} truncate`}>AI Study Assistant</h3>
             <p className={`text-xs font-medium ${isDark ? 'text-gray-500' : 'text-gray-500'} flex items-center gap-1.5 mt-0.5 truncate`}>
               <Zap className="w-2.5 sm:w-3 h-2.5 sm:h-3 text-amber-400 fill-amber-400 flex-shrink-0" />
-              <span className="truncate">Mistral AI</span>
+              <span className="truncate">Gemini AI</span>
             </p>
           </div>
         </div>

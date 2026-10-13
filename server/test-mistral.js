@@ -2,7 +2,7 @@ require('dotenv').config();
 const aiService = require('./src/ai/aiAssistant.service');
 
 (async () => {
-  console.log('=== Testing AI Service with Mistral ===\n');
+  console.log('=== Testing AI Service with Gemini ===\n');
 
   try {
     console.log('1️⃣ Testing askQuestion...');
