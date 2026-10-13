@@ -118,6 +118,21 @@ export const approveJoinRequest = createAsyncThunk(
   }
 );
 
+export const rejectJoinRequest = createAsyncThunk(
+  'groups/rejectJoinRequest',
+  async ({ groupId, userId }, thunkAPI) => {
+    try {
+      return await groupService.rejectJoinRequest(groupId, userId);
+    } catch (error) {
+      const message =
+        (error.response && error.response.data && error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 // Accept direct invite
 export const acceptInvite = createAsyncThunk(
   'groups/acceptInvite',
@@ -226,6 +241,9 @@ export const groupSlice = createSlice({
         state.currentGroup = action.payload;
       })
       .addCase(approveJoinRequest.fulfilled, (state, action) => {
+        state.currentGroup = action.payload;
+      })
+      .addCase(rejectJoinRequest.fulfilled, (state, action) => {
         state.currentGroup = action.payload;
       })
       .addCase(acceptInvite.fulfilled, (state, action) => {

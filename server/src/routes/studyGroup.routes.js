@@ -7,6 +7,7 @@ const {
   getGroupById,
   requestToJoinGroup,
   approveJoinRequest,
+  rejectJoinRequest,
   acceptInvite,
   joinGroup,
   leaveGroup,
@@ -21,6 +22,7 @@ router.route('/my-groups').get(protect, getUserGroups);
 
 router.route('/:id/request-join').post(protect, requestToJoinGroup);
 router.route('/:id/approve-request').post(protect, approveJoinRequest);
+router.route('/:id/reject-request').post(protect, rejectJoinRequest);
 router.route('/:id/accept-invite').post(protect, acceptInvite);
 router.route('/:id/join').post(protect, joinGroup);
 router.route('/:id/leave').post(protect, leaveGroup);

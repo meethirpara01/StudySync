@@ -50,6 +50,15 @@ const approveJoinRequest = asyncHandler(async (req, res) => {
   res.json(group);
 });
 
+// @desc    Reject a pending join request
+// @route   POST /api/groups/:id/reject-request
+// @access  Private
+const rejectJoinRequest = asyncHandler(async (req, res) => {
+  const { userId } = req.body;
+  const group = await studyGroupService.rejectJoinRequest(req.params.id, userId, req.user._id);
+  res.json(group);
+});
+
 // @desc    Accept a direct group invite
 // @route   POST /api/groups/:id/accept-invite
 // @access  Private
@@ -81,6 +90,7 @@ module.exports = {
   getGroupById,
   requestToJoinGroup,
   approveJoinRequest,
+  rejectJoinRequest,
   acceptInvite,
   joinGroup,
   leaveGroup,

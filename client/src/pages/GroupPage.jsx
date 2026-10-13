@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { getGroupById, reset, acceptInvite, approveJoinRequest } from '../features/groups/groupSlice';
+import { getGroupById, reset, acceptInvite, approveJoinRequest, rejectJoinRequest } from '../features/groups/groupSlice';
 import { getGroupMessages, addMessage, updateMessage } from '../features/chat/chatSlice';
 import ChatWindow from '../components/chat/ChatWindow';
 import AIAssistantPanel from '../components/ai/AIAssistantPanel';
@@ -29,6 +29,9 @@ const GroupPage = () => {
   });
   const [copied, setCopied] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showRequestsModal, setShowRequestsModal] = useState(false);
+  const [processingRequestId, setProcessingRequestId] = useState(null);
+  const [requestActionError, setRequestActionError] = useState('');
 
   const { user } = useSelector((state) => state.auth);
   const { currentGroup, isLoading: groupLoading } = useSelector((state) => state.groups);
@@ -91,9 +94,27 @@ const GroupPage = () => {
 
   const handleApproveRequest = async (requestUserId) => {
     try {
+      setProcessingRequestId(requestUserId);
+      setRequestActionError('');
       await dispatch(approveJoinRequest({ groupId: id, userId: requestUserId })).unwrap();
+      setShowRequestsModal(false);
     } catch (error) {
-      console.error(error);
+      setRequestActionError(error || 'Unable to approve this request.');
+    } finally {
+      setProcessingRequestId(null);
+    }
+  };
+
+  const handleRejectRequest = async (requestUserId) => {
+    try {
+      setProcessingRequestId(requestUserId);
+      setRequestActionError('');
+      await dispatch(rejectJoinRequest({ groupId: id, userId: requestUserId })).unwrap();
+      setShowRequestsModal(false);
+    } catch (error) {
+      setRequestActionError(error || 'Unable to reject this request. Restart the server and try again.');
+    } finally {
+      setProcessingRequestId(null);
     }
   };
 
@@ -155,6 +176,77 @@ const GroupPage = () => {
 
   return (
     <div className="w-full h-screen flex flex-col p-6 md:p-8 lg:p-10 relative overflow-hidden">
+      {showRequestsModal && isAdmin && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, y: 16, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            className="w-full max-w-lg rounded-2xl border shadow-2xl overflow-hidden"
+            style={{
+              background: isDark ? '#151515' : '#FFFFFF',
+              borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+            }}
+          >
+            <div className="flex items-center justify-between p-5 border-b" style={{ borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)' }}>
+              <div>
+                <p className="text-xs uppercase tracking-widest font-bold" style={{ color: GREEN }}>Admin review</p>
+                <h2 className="text-xl font-black mt-1">Pending join requests</h2>
+              </div>
+              <button
+                onClick={() => setShowRequestsModal(false)}
+                className="w-9 h-9 rounded-lg border text-lg font-bold"
+                aria-label="Close join requests"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="p-5 max-h-[60vh] overflow-y-auto">
+              {requestActionError && (
+                <div className="mb-4 rounded-xl border px-4 py-3 text-sm font-semibold" style={{ color: '#DC2626', borderColor: '#DC262655', background: '#DC262610' }}>
+                  {requestActionError}
+                </div>
+              )}
+              {currentGroup.joinRequests?.length > 0 ? (
+                <div className="space-y-3">
+                  {currentGroup.joinRequests.map((request) => {
+                    const requestUser = request.user || request;
+                    const requestUserId = requestUser?._id || requestUser;
+                    return (
+                      <div key={requestUserId} className="flex items-center justify-between gap-4 p-3 rounded-xl border" style={{ borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)' }}>
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-white shrink-0" style={{ background: GREEN }}>
+                            {(requestUser?.name || '?').charAt(0).toUpperCase()}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-bold truncate">{requestUser?.name || 'StudySync member'}</p>
+                            <p className="text-xs truncate" style={{ color: isDark ? 'rgba(242,242,242,0.5)' : 'rgba(12,12,12,0.5)' }}>{requestUser?.email || 'Wants to join this group'}</p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 shrink-0">
+                          <button onClick={() => handleRejectRequest(requestUserId)} disabled={processingRequestId === requestUserId} className="px-3 py-2 rounded-lg border text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed" style={{ color: '#DC2626', borderColor: '#DC262655' }}>
+                            {processingRequestId === requestUserId ? 'Working...' : 'Reject'}
+                          </button>
+                          <button onClick={() => handleApproveRequest(requestUserId)} disabled={processingRequestId === requestUserId} className="px-3 py-2 rounded-lg text-sm font-bold text-white disabled:opacity-50 disabled:cursor-not-allowed" style={{ background: GREEN }}>
+                            Accept
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="py-10 text-center">
+                  <Users className="w-10 h-10 mx-auto mb-3" style={{ color: GREEN }} />
+                  <p className="font-bold">No pending requests</p>
+                  <p className="text-sm mt-1" style={{ color: isDark ? 'rgba(242,242,242,0.5)' : 'rgba(12,12,12,0.5)' }}>New requests will appear here.</p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       {showInviteModal && !isMember && !isAdmin && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="w-full max-w-xl rounded-3xl border p-8 shadow-2xl"
@@ -251,6 +343,27 @@ const GroupPage = () => {
           </div>
           
           <div className="hidden lg:flex items-center gap-4">
+            {isAdmin && (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowRequestsModal(true)}
+                className="relative flex items-center gap-2 px-5 py-3 rounded-xl font-bold transition-all border"
+                style={{
+                  background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
+                  borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+                  color: isDark ? '#F2F2F2' : '#0C0C0C'
+                }}
+              >
+                <Users className="w-5 h-5" />
+                <span>Join requests</span>
+                {currentGroup.joinRequests?.length > 0 && (
+                  <span className="min-w-5 h-5 px-1 rounded-full text-xs flex items-center justify-center text-white" style={{ background: GREEN }}>
+                    {currentGroup.joinRequests.length}
+                  </span>
+                )}
+              </motion.button>
+            )}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -336,33 +449,6 @@ const GroupPage = () => {
               borderColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)'
             }}
           >
-            {isAdmin && currentGroup.joinRequests?.length > 0 && (
-              <div className="border-b p-4" style={{ borderColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)' }}>
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-bold" style={{ fontFamily: "'Clash Display', sans-serif" }}>Pending join requests</h3>
-                  <span className="px-2 py-1 rounded-full text-xs font-bold" style={{ background: `${GREEN}20`, color: GREEN }}>
-                    {currentGroup.joinRequests.length}
-                  </span>
-                </div>
-                <div className="space-y-3">
-                  {currentGroup.joinRequests.map((request) => (
-                    <div key={request._id} className="flex items-center justify-between rounded-xl border p-3" style={{ borderColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)' }}>
-                      <div>
-                        <p className="font-semibold" style={{ color: isDark ? '#F2F2F2' : '#0C0C0C' }}>{request.name}</p>
-                        <p className="text-sm" style={{ color: isDark ? 'rgba(242,242,242,0.5)' : 'rgba(12,12,12,0.5)' }}>{request.email}</p>
-                      </div>
-                      <button
-                        onClick={() => handleApproveRequest(request._id)}
-                        className="px-3 py-2 rounded-lg font-bold text-white"
-                        style={{ background: GREEN }}
-                      >
-                        Accept
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
             {/* Mobile Tab Selector (Hidden on Desktop) */}
             <div className="lg:hidden flex gap-2 p-3 px-4 border-b relative z-50" style={{ borderColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)' }}>
               {tabs.map((tab) => {
