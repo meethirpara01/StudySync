@@ -8,7 +8,10 @@ It combines group chat, shared notes, and AI study tools into a single workspace
 
 - User authentication with secure cookie-based JWT sessions.
 - Create and discover study groups by subject.
-- Join and leave groups.
+- Join groups and request membership when needed.
+- Leave groups as a normal member at any time.
+- Transfer admin ownership before leaving, or delete a group as the current admin.
+- Review and manage incoming join requests from the group admin dashboard.
 - Real-time group chat with typing indicators.
 - Chat reactions (heart reactions).
 - Link sharing in chat.
@@ -66,10 +69,17 @@ At runtime:
 
 ### Study Groups
 
-- Create a group with name, subject, description.
+- Create a group with name, subject, and description.
 - Public group listing for discovery.
 - User-specific group listing.
-- Group membership join/leave.
+- Request to join a group when you are not already a member.
+- Leave a group at any time as a standard member.
+- If you are the admin, choose one of the following before leaving:
+  - delete the group permanently
+  - transfer admin role to a current member and leave
+  - assign a new admin and leave immediately
+- The new admin can view, accept, or reject all pending join requests.
+- A former admin can rejoin by sending a new request after leaving.
 
 ### Real-Time Chat
 
@@ -110,8 +120,18 @@ Base path: /api
 - POST /api/groups (protected)
 - GET /api/groups/my-groups (protected)
 - GET /api/groups/:id (protected)
+- POST /api/groups/:id/request-join (protected)
+- POST /api/groups/:id/approve-request (protected)
+- POST /api/groups/:id/reject-request (protected)
 - POST /api/groups/:id/join (protected)
 - POST /api/groups/:id/leave (protected)
+
+Group permissions:
+
+- Any member may leave the group.
+- An admin may delete the group or transfer admin rights before leaving.
+- The current admin must select another existing member when transferring ownership.
+- The transferred admin immediately gains full view/approve/reject rights for pending requests.
 
 ### Messages
 
@@ -210,6 +230,21 @@ npm run dev
 Frontend default: http://localhost:5173
 
 Backend default: http://localhost:5000
+
+## Group Management Behavior
+
+The group management flow supports the following experience:
+
+1. Any member can leave a group from the group page.
+2. If the current admin leaves, the app prompts them to either:
+   - delete the group permanently
+   - transfer admin role to another member before leaving
+   - assign a new admin and leave immediately
+3. The old admin is removed from the group membership when the transfer occurs and can submit a new request to rejoin later.
+4. The new admin gains full authority over the join request queue and can approve or reject incoming requests.
+5. Request management is shown from the group admin controls and remains available after the transfer.
+
+This behavior is enforced in both the backend service logic and the frontend group UI.
 
 ## Production Build Flow (Current Script Behavior)
 
